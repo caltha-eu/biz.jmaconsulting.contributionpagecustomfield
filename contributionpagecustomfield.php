@@ -22,15 +22,6 @@ function contributionpagecustomfield_civicrm_xmlMenu(&$files) {
 }
 
 /**
- * Implements hook_civicrm_install().
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_install
- */
-function contributionpagecustomfield_civicrm_install() {
-  _contributionpagecustomfield_civix_civicrm_install();
-}
-
-/**
  * Implements hook_civicrm_postInstall().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_postInstall
@@ -76,31 +67,28 @@ function contributionpagecustomfield_civicrm_upgrade($op, CRM_Queue_Queue $queue
 }
 
 /**
- * Implements hook_civicrm_managed().
+ * Implements hook_civicrm_install().
  *
- * Generate a list of entities to create/deactivate/delete when this module
- * is installed, disabled, uninstalled.
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_managed
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_install
  */
-function contributionpagecustomfield_civicrm_managed(&$entities) {
-  _contributionpagecustomfield_civix_civicrm_managed($entities);
-  $entities[] = [
-    'module' => 'biz.jmaconsulting.contributionpagecustomfield',
-    'name' => 'contributionpagecustomfield',
-    'update' => 'never',
-    'entity' => 'OptionValue',
-    'params' => [
-      'label' => ts('Contribution Page'),
-      'name' => 'civicrm_contribution_page',
-      'value' => 'ContributionPage',
+function contributionpagecustomfield_civicrm_install() {
+  // #188 - use install instead of managed entities hook to avoid fatal
+  $result = civicrm_api3('OptionValue', 'get', [
+    'sequential'      => 1,
+    'option_group_id' => "cg_extend_objects",
+    'value'           => "ContributionPage",
+  ]);
+  if (empty($result['id'])) {
+    civicrm_api3('OptionValue', 'create', [
+      'label'           => E::ts('Contribution Page'),
+      'name'            => 'civicrm_contribution_page',
+      'value'           => 'ContributionPage',
       'option_group_id' => 'cg_extend_objects',
-      'is_active' => 1,
-      'version' => 3,
-    ],
-  ];
+      'is_active'       => 1,
+    ]);
+  }
+  _contributionpagecustomfield_civix_civicrm_install();
 }
-
 /**
  * Implements hook_civicrm_caseTypes().
  *
